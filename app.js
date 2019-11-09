@@ -1,5 +1,5 @@
 const btn = document.getElementById("btn");
-const container = document.querySelector(".container");
+const container = document.querySelector(".row-cont");
 
 function getPosts(cb) {
     const xhr = new XMLHttpRequest();
@@ -19,9 +19,13 @@ function getPosts(cb) {
 function renderPosts(response) {
     const fragment = document.createDocumentFragment();
     response.forEach(post => {
+        const cols6 = document.createElement("div");
+        cols6.classList.add("col");
+        cols6.classList.add("s4");
         const card = document.createElement("div");
         card.classList.add("card");
         const cardSize = document.createElement("div");
+        cardSize.classList.add("card");
         cardSize.classList.add("medium");
         const cardImg = document.createElement("div");
         cardImg.classList.add("card-image");
@@ -38,7 +42,8 @@ function renderPosts(response) {
         cardImg.appendChild(img);
         cardImg.appendChild(title);
         cardSize.appendChild(cardContent);
-        fragment.appendChild(card);
+        cols6.appendChild(card);
+        fragment.appendChild(cols6);
     });
     container.appendChild(fragment);
 }
