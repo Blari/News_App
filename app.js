@@ -1,59 +1,118 @@
-const btn = document.getElementById("btn");
-const container = document.querySelector(".row-cont");
+// Custom Http Module
+function customHttp() {
+    return {
+        get(url, cb) {
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open("GET", url);
+                xhr.addEventListener("load", () => {
+                    if (Math.floor(xhr.status / 100) !== 2) {
+                        cb(`Error. Status code: ${xhr.status}`, xhr);
+                        return;
+                    }
+                    const response = JSON.parse(xhr.responseText);
+                    cb(null, response);
+                });
 
-function getPosts(cb) {
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", "https://jsonplaceholder.typicode.com/posts");
-    xhr.addEventListener("load", () => {
-        const respons = JSON.parse(xhr.responseText);
-        cb(respons);
-    });
+                xhr.addEventListener("error", () => {
+                    cb(`Error. Status code: ${xhr.status}`, xhr);
+                });
 
-    xhr.addEventListener("error", () => {
-        console.log("error");
-    });
+                xhr.send();
+            } catch (error) {
+                cb(error);
+            }
+        },
+        post(url, body, headers, cb) {
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", url);
+                xhr.addEventListener("load", () => {
+                    if (Math.floor(xhr.status / 100) !== 2) {
+                        cb(`Error. Status code: ${xhr.status}`, xhr);
+                        return;
+                    }
+                    const response = JSON.parse(xhr.responseText);
+                    cb(null, response);
+                });
 
-    xhr.send();
+                xhr.addEventListener("error", () => {
+                    cb(`Error. Status code: ${xhr.status}`, xhr);
+                });
+
+                if (headers) {
+                    Object.entries(headers).forEach(([key, value]) => {
+                        xhr.setRequestHeader(key, value);
+                    });
+                }
+
+                xhr.send(JSON.stringify(body));
+            } catch (error) {
+                cb(error);
+            }
+        }
+    };
 }
+// Init http module
+const http = customHttp();
 
-function renderPosts(response) {
-    const fragment = document.createDocumentFragment();
-    response.forEach(post => {
-        const cols6 = document.createElement("div");
-        cols6.classList.add("col");
-        cols6.classList.add("s6");
-        const card = document.createElement("div");
-        card.classList.add("card");
-        const cardSize = document.createElement("div");
-        cardSize.classList.add("card");
-        cardSize.classList.add("medium");
-        const cardImg = document.createElement("div");
-        cardImg.classList.add("card-image");
-        const img = document.createElement("img");
-        img.src = "sample.jpg";
-        const title = document.createElement("span");
-        title.classList.add("card-title");
-        title.textContent = post.title;
-        const cardAction = document.createElement("div");
-        cardAction.classList.add("card-action");
-        const cardActionLink = document.createElement("a");
-        cardActionLink.textContent = "This is a link";
-        const cardContent = document.createElement("div");
-        cardContent.classList.add("card-content");
-        cardContent.textContent = post.body;
-        card.appendChild(cardSize);
-        cardAction.appendChild(cardActionLink);
-        cardSize.appendChild(cardImg);
-        cardImg.appendChild(img);
-        cardImg.appendChild(title);
-        cardSize.appendChild(cardContent);
-        cardSize.appendChild(cardAction);
-        cols6.appendChild(card);
-        fragment.appendChild(cols6);
-    });
-    container.appendChild(fragment);
-}
+const newsService = (function() {
+    const apiKey = "0902e0fbe40b44a0b64337a0b9b6ac3d";
+    const apiUrl = "https://newsapi.org/v2";
 
-btn.addEventListener("click", e => {
-    getPosts(renderPosts);
+    return {
+        topHeadlines(country = "ua", cb) {
+            http.get(
+                `${apiUrl}/top-headlines?country=${country}&category=technology&apiKey=${apiKey}`,
+                cb
+            );
+        },
+        everything(query, cb) {
+            `${apiUrl}/everything?q=${query}&apiKey=${apiKey}`, cb;
+        }
+    };
+})();
+//  init selects
+document.addEventListener("DOMContentLoaded", function() {
+    M.AutoInit();
+    loadNews();
 });
+
+function loadNews() {
+    newsService.topHeadlines("ru", onGetResponse);
+}
+
+function onGetResponse(err, res) {
+    console.log(res);
+    renderNews(res.articles);
+}
+
+function renderNews(news) {
+    const newsContainer = document.querySelector(".news-container .row");
+    let fragment = "";
+
+    news.forEach(newsIteam => {
+        const el = newsTemplate(newsIteam);
+        fragment += el;
+    });
+    newsContainer.insertAdjacentHTML("afterbegin", fragment);
+}
+
+function newsTemplate({ urlToImage, title, url, description }) {
+    return `
+        <div class="col s12">
+            <div class="card">
+                <div class="card-image">
+                    <img src="${urlToImage}">
+                    <span class="card-title">${title || ""}</span>
+                </div>
+                <div class="card-content">
+                <p>${description || ""}</p>
+                </div>
+                <div class="card-action">
+                    <a href="${url}">Read More</a>
+                </div>
+            </div>
+        </div>
+    `;
+}
