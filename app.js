@@ -21,7 +21,7 @@ function renderPosts(response) {
     response.forEach(post => {
         const cols6 = document.createElement("div");
         cols6.classList.add("col");
-        cols6.classList.add("s4");
+        cols6.classList.add("s6");
         const card = document.createElement("div");
         card.classList.add("card");
         const cardSize = document.createElement("div");
@@ -34,14 +34,20 @@ function renderPosts(response) {
         const title = document.createElement("span");
         title.classList.add("card-title");
         title.textContent = post.title;
+        const cardAction = document.createElement("div");
+        cardAction.classList.add("card-action");
+        const cardActionLink = document.createElement("a");
+        cardActionLink.textContent = "This is a link";
         const cardContent = document.createElement("div");
         cardContent.classList.add("card-content");
         cardContent.textContent = post.body;
         card.appendChild(cardSize);
+        cardAction.appendChild(cardActionLink);
         cardSize.appendChild(cardImg);
         cardImg.appendChild(img);
         cardImg.appendChild(title);
         cardSize.appendChild(cardContent);
+        cardSize.appendChild(cardAction);
         cols6.appendChild(card);
         fragment.appendChild(cols6);
     });
