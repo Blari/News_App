@@ -72,6 +72,9 @@ const newsService = (function() {
         }
     };
 })();
+
+const form = document.forms[]
+
 //  init selects
 document.addEventListener("DOMContentLoaded", function() {
     M.AutoInit();
@@ -100,7 +103,7 @@ function renderNews(news) {
 
 function newsTemplate({ urlToImage, title, url, description }) {
     return `
-        <div class="col s12">
+        <div class="col s12 m12">
             <div class="card">
                 <div class="card-image">
                     <img src="${urlToImage}">
